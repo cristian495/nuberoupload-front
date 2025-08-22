@@ -33,28 +33,45 @@ export async function fetchFolderFiles(
 }
 
 export async function fetchAvailableProviders(): Promise<StorageProvider[]> {
-  const res: any = await new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve({
-        data: [
-          {
-            id: "1",
-            name: "Google Drive",
-            icon: "/images/google-drive.png",
-          },
-          {
-            id: "2",
-            name: "Dropbox",
-            icon: "/images/dropbox.png",
-          },
-          {
-            id: "3",
-            name: "OneDrive",
-            icon: "/images/onedrive.png",
-          },
-        ],
-      });
-    });
-  });
+  const res = await api.get(`/storage-providers/`, {});
+  console.log("fetchAvailableProviders", res.data);
   return res.data;
+}
+
+export async function generateUploadIdReq(): Promise<string> {
+  const res = await api.get(`/media/upload-id`);
+  console.log("generateUploadId", res.data);
+  return res.data;
+}
+
+interface UploadFileToServerOptions {
+  file: File;
+  folderName: string;
+  uploadId: string;
+  selectedProviders: StorageProvider[];
+  onProgress?: (percent: number) => void;
+}
+
+export async function uploadFileToServerReq({
+  file,
+  folderName,
+  uploadId,
+  selectedProviders,
+  onProgress,
+}: UploadFileToServerOptions): Promise<void> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("folderName", folderName);
+  form.append("uploadId", uploadId);
+  for (let i = 0; i < selectedProviders.length; i++) {
+    form.append(`providerIds[${i}]`, selectedProviders[i]._id);
+  }
+
+  await api.post("/uploads/media", form, {
+    onUploadProgress: (event) => {
+      if (!event.total) return;
+      const percent = Math.round((event.loaded * 100) / event.total);
+      onProgress?.(percent);
+    },
+  });
 }
