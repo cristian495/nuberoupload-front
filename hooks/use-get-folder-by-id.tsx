@@ -1,4 +1,5 @@
 import { fetchFolderById } from "@/lib/api";
+import { filesService } from "@/lib/files-api";
 import { queryKeys } from "@/lib/query-keys";
 import { useBoundStore } from "@/stores/use-bound-store";
 import { MediaFolder } from "@/types/MediaFolder";
@@ -26,7 +27,7 @@ export function useFetchFolderById(folderId: string) {
 
   return useQuery({
     queryKey: queryKeys.folder(folderId),
-    queryFn: () => fetchFolderById(folderId),
+    queryFn: () => filesService.getFolderFiles(folderId),
     enabled: !!folderId,
   });
 }

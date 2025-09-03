@@ -1,33 +1,86 @@
-import { Suspense } from "react"
-import Sidebar from "@/components/sidebar"
-import UploadFolder from "@/components/upload-folder"
-import { HomeIcon, SearchIcon as SearchIconLucide, PlusSquareIcon, HeartIcon, UserIcon } from "lucide-react"
+"use client";
 
-export default function UploadPage() {
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DashboardLayout } from "@/components/layout";
+import { useUpload } from "@/features/uploads/hooks/use-upload";
+import {
+  UploadsPageHeader,
+  FolderSelector,
+  FileSummary,
+  ProviderSelection,
+  FilePreviewList,
+} from "@/features/uploads/components";
+
+export default function UploadsPage() {
+  const {
+    files,
+    folderName,
+    isUploading,
+    showProgress,
+    fileInputRef,
+    imageCount,
+    videoCount,
+    otherCount,
+    handleFileChange,
+    handleUpload,
+    removeFile,
+    clearAll,
+    toggleFileExpanded,
+    toggleProviderSelection,
+  } = useUpload();
+
   return (
-    <div className="flex min-h-screen bg-white">
-      {/* Sidebar - visible on desktop, hidden on mobile */}
-      <div className="hidden md:block w-20 lg:w-64 border-r min-h-screen">
-        <Sidebar />
-      </div>
+    <DashboardLayout>
+      <div className="mx-auto w-full max-w-5xl">
+        <UploadsPageHeader />
 
-      {/* Main content */}
-      <div className="flex-1">
-        <div className="p-4 md:p-6">
-          <Suspense fallback={<div>Cargando...</div>}>
-            <UploadFolder />
-          </Suspense>
-        </div>
-      </div>
+        <FolderSelector
+          fileInputRef={fileInputRef}
+          onFileChange={handleFileChange}
+          isUploading={isUploading}
+        />
 
-      {/* Barra de navegación inferior para móvil */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white flex justify-around items-center p-3 z-10">
-        <HomeIcon className="h-6 w-6" />
-        <SearchIconLucide className="h-6 w-6" />
-        <PlusSquareIcon className="h-6 w-6" />
-        <HeartIcon className="h-6 w-6" />
-        <UserIcon className="h-6 w-6" />
+        {files.length > 0 && (
+          <div className="space-y-6">
+            <FileSummary
+              folderName={folderName}
+              imageCount={imageCount}
+              videoCount={videoCount}
+              otherCount={otherCount}
+              totalFiles={files.length}
+              isUploading={isUploading}
+              onClearAll={clearAll}
+              onUpload={handleUpload}
+            />
+
+            <ProviderSelection onToggleProvider={toggleProviderSelection} />
+
+            {!isUploading &&
+              files.some(
+                (file) =>
+                  !file.type?.startsWith("image/") &&
+                  !file.type?.startsWith("video/"),
+              ) && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Archivos no compatibles</AlertTitle>
+                  <AlertDescription>
+                    Algunos archivos no son imágenes ni videos. Solo se
+                    mostrarán los archivos multimedia en la galería.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+            <FilePreviewList
+              files={files}
+              onRemoveFile={removeFile}
+              onToggleExpanded={toggleFileExpanded}
+              showProgress={showProgress}
+            />
+          </div>
+        )}
       </div>
-    </div>
-  )
+    </DashboardLayout>
+  );
 }

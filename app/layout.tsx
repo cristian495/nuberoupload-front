@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import { AuthGuard } from "@/components/auth/auth-guard";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,9 +18,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-          <Providers>{children}</Providers>
+        <Providers>
+          <AuthGuard>
+            {children}
+          </AuthGuard>
+        </Providers>
       </body>
     </html>
   );

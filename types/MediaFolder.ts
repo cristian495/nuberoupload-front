@@ -4,6 +4,7 @@ export interface MediaFolder {
   imageCount: number;
   videoCount: number;
   count: number;
+  totalFiles: number;
   thumbnail: string | null;
   createdAt: string;
   updatedAt: string;
