@@ -1,14 +1,13 @@
 import { MediaFolder } from "@/types/MediaFolder";
 import { MediaFile } from "@/types/MediaFile";
 import { StorageProvider } from "@/types/StorageProvider";
-import axios from "axios";
+import { apiClient } from "./api-client";
 
-export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
+// Usar el cliente base compartido
+export const api = apiClient;
 
 export async function fetchFolders(): Promise<MediaFolder[]> {
-  const res = await api.get("/media/folders");
+  const res = await api.get("/files/folders");
   console.log(res.data);
   return res.data;
 }

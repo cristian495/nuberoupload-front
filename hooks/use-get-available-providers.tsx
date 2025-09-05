@@ -1,4 +1,5 @@
 import { fetchAvailableProviders } from "@/lib/api";
+import { providersService } from "@/lib/providers-api";
 import { queryKeys } from "@/lib/query-keys";
 import { useBoundStore } from "@/stores/use-bound-store";
 import { StorageProvider } from "@/types/StorageProvider";
@@ -12,7 +13,7 @@ export function useFetchAvailableProviders() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: queryKeys.availableProviders(),
-    queryFn: () => fetchAvailableProviders(),
+    queryFn: () => providersService.getStorageProviders(),
   });
 
   React.useEffect(() => {

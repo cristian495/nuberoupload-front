@@ -376,7 +376,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import BatchUploadDialog from "./batch-upload-dialog";
+// import BatchUploadDialog from "../upload/batch-upload-dialog";
 import SelectionToolbar from "./selection-toolbar";
 import { useFetchFolderFiles } from "@/hooks/use-get-folder-files";
 import { useFetchAvailableProviders } from "@/hooks/use-get-available-providers";
@@ -662,7 +662,7 @@ export default function MediaGallery({
       />
 
       {/* Diálogo para subir por lotes a nuevos proveedores */}
-      <BatchUploadDialog
+      {/* <BatchUploadDialog
         isOpen={isBatchUploadDialogOpen}
         onClose={() => setIsBatchUploadDialogOpen(false)}
         selectedFiles={filteredMedia.filter((media) =>
@@ -670,7 +670,7 @@ export default function MediaGallery({
         )}
         availableProviders={providers ?? []}
         onClearSelection={clearSelection}
-      />
+      /> */}
     </TooltipProvider>
   );
 }

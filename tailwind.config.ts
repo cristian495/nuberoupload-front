@@ -6,10 +6,25 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "*.{js,ts,jsx,tsx,mdx}"
+    "*.{js,ts,jsx,tsx,mdx}",
+    './features/**/*.{js,ts,jsx,tsx}',
+    './constants/**/*.{js,ts}', // ← Incluir archivos de constantes
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+  			mono: ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+  		},
+  		fontWeight: {
+  			thin: '100',
+  			extralight: '200',
+  			light: '300',
+  			normal: '400',
+  			medium: '500',
+  			semibold: '600',
+  			bold: '700',
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -60,6 +75,43 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			// Custom design system colors
+  			blue: {
+  				50: 'hsl(var(--blue-50))',
+  				100: 'hsl(var(--blue-100))',
+  				200: 'hsl(var(--blue-200))',
+  				300: 'hsl(var(--blue-300))',
+  				400: 'hsl(var(--blue-400))',
+  				500: 'hsl(var(--blue-500))',
+  				600: 'hsl(var(--blue-600))',
+  				700: 'hsl(var(--blue-700))',
+  				800: 'hsl(var(--blue-800))',
+  				900: 'hsl(var(--blue-900))',
+  			},
+  			purple: {
+  				50: 'hsl(var(--purple-50))',
+  				100: 'hsl(var(--purple-100))',
+  				200: 'hsl(var(--purple-200))',
+  				300: 'hsl(var(--purple-300))',
+  				400: 'hsl(var(--purple-400))',
+  				500: 'hsl(var(--purple-500))',
+  				600: 'hsl(var(--purple-600))',
+  				700: 'hsl(var(--purple-700))',
+  				800: 'hsl(var(--purple-800))',
+  				900: 'hsl(var(--purple-900))',
+  			},
+  			gray: {
+  				50: 'hsl(var(--gray-50))',
+  				100: 'hsl(var(--gray-100))',
+  				200: 'hsl(var(--gray-200))',
+  				300: 'hsl(var(--gray-300))',
+  				400: 'hsl(var(--gray-400))',
+  				500: 'hsl(var(--gray-500))',
+  				600: 'hsl(var(--gray-600))',
+  				700: 'hsl(var(--gray-700))',
+  				800: 'hsl(var(--gray-800))',
+  				900: 'hsl(var(--gray-900))',
   			}
   		},
   		borderRadius: {

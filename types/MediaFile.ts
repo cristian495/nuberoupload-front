@@ -1,17 +1,19 @@
+import { StorageProvidersCodes } from "./storage-providers-codes";
+
 export interface MediaFile {
   _id: string;
   uploadId: string;
   originalName: string;
   folderId: string;
-  providers: [
+  uploads: [
     {
-      provider: "doodstream" | "cloudinary";
+      providerCode: StorageProvidersCodes;
       url: string;
       thumbnail: string;
-      _id: string;
+      providerId: string;
     }
   ];
-  type: "image" | "video";
+  category: "image" | "video";
   status: "completed" | "pending" | "failed";
   createdAt: string;
   updatedAt: string;

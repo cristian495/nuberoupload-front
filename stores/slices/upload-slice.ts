@@ -6,11 +6,13 @@ interface ProviderProgress {
   [provider: string]: {
     progress: number;
     status: UploadStatus;
+    error?: string;
   };
 }
 
 export interface UploadFile {
-  id: string;
+  temporaryId: string; // ID generado en frontend para UI mientras se sube
+  serverFileId?: string; // ID real de MongoDB una vez creado en servidor
   expanded: boolean;
   preview?: string;
   file: File; // ← el verdadero archivo
@@ -21,8 +23,7 @@ export interface UploadFile {
   webkitRelativePath: string;
   progress: number;
   status: UploadStatus;
-  providerProgress: Record<string, { progress: number; status: UploadStatus }>;
-  uploadId?: string;
+  providerProgress: Record<string, { progress: number; status: UploadStatus; error?: string }>;
 }
 
 export interface UploadSlice {
@@ -38,18 +39,19 @@ export interface UploadSlice {
   addUploadFile: (file: UploadFile) => void;
   addUploadFiles: (files: UploadFile[]) => void;
   updateFileProgress: (
-    uploadId: string,
+    temporaryId: string,
     progress: number,
-    status: UploadStatus
+    status: UploadStatus,
   ) => void;
+  setServerFileId: (temporaryId: string, serverFileId: string) => void;
   updateProviderProgress: (
-    uploadId: string,
+    serverFileId: string,
     providerId: string,
-    status: ProviderProgress[string]["status"],
-    progress: number
+    status: UploadStatus,
+    progress: number,
+    error?: string,
   ) => void;
-  updateFileUploadId: (id: string, uploadId: string) => void;
-  toggleFileExpanded: (id: string) => void;
+  toggleFileExpanded: (temporaryId: string) => void;
   clearAllUploadFiles: () => void;
   toggleProviderSelection: (provider: StorageProvider) => void;
 }
@@ -73,36 +75,36 @@ export const createUploadSlice: StateCreator<
     set((s) => ({ uploadFiles: [...s.uploadFiles, file] })),
   addUploadFiles: (files) =>
     set((s) => ({ uploadFiles: [...s.uploadFiles, ...files] })),
-  updateFileProgress: (uploadId, progress, status) =>
+  updateFileProgress: (temporaryId, progress, status) =>
     set((s) => ({
       uploadFiles: s.uploadFiles.map((f) =>
-        f.uploadId === uploadId ? { ...f, progress, status: status } : f
+        f.temporaryId === temporaryId ? { ...f, progress, status: status } : f,
       ),
     })),
-  updateProviderProgress: (uploadId, providerId, status, progress) =>
+  setServerFileId: (temporaryId, serverFileId) =>
     set((s) => ({
       uploadFiles: s.uploadFiles.map((f) =>
-        f.uploadId === uploadId
+        f.temporaryId === temporaryId ? { ...f, serverFileId } : f,
+      ),
+    })),
+  updateProviderProgress: (serverFileId, providerId, status, progress, error) =>
+    set((s) => ({
+      uploadFiles: s.uploadFiles.map((f) =>
+        f.serverFileId === serverFileId
           ? {
               ...f,
               providerProgress: {
                 ...f.providerProgress,
-                [providerId]: { progress, status },
+                [providerId]: { progress, status, error },
               },
             }
-          : f
+          : f,
       ),
     })),
-  updateFileUploadId: (id: string, uploadId: string) =>
+  toggleFileExpanded: (temporaryId) =>
     set((s) => ({
       uploadFiles: s.uploadFiles.map((f) =>
-        f.id === id ? { ...f, uploadId } : f
-      ),
-    })),
-  toggleFileExpanded: (id) =>
-    set((s) => ({
-      uploadFiles: s.uploadFiles.map((f) =>
-        f.id === id ? { ...f, expanded: !f.expanded } : f
+        f.temporaryId === temporaryId ? { ...f, expanded: !f.expanded } : f,
       ),
     })),
   clearAllUploadFiles: () =>
@@ -121,10 +123,10 @@ export const createUploadSlice: StateCreator<
     }),
   toggleProviderSelection: (provider) =>
     set((state) => {
-      console.log(provider)
+      console.log(provider);
       // return selected}
       const selected = state.selectedProviders.some(
-        (sp) => sp._id === provider._id
+        (sp) => sp._id === provider._id,
       )
         ? state.selectedProviders.filter((sp) => sp._id !== provider._id)
         : [...state.selectedProviders, provider];

@@ -1,51 +1,41 @@
-import { useMutation } from "@tanstack/react-query";
-import { generateUploadIdReq, uploadFileToServerReq } from "@/lib/api";
-import { useUploadProgress } from "./use-upload-progress";
 import { useBoundStore } from "@/stores/use-bound-store";
 import { UploadStatus } from "@/types/UploadStatus";
 import { UploadFile } from "@/stores/slices/upload-slice";
 import { StorageProvider } from "@/types";
+import { uploadsService } from "@/lib/uploads-api";
 
 export function useUploader() {
   const updateFileProgress = useBoundStore((s) => s.updateFileProgress);
-  const updateProviderProgress = useBoundStore((s) => s.updateProviderProgress);
-  const updateFileUploadId = useBoundStore((s) => s.updateFileUploadId);
-  //   const markCompleted = useBoundStore((s) => s.markCompleted);
-
-  const generateUploadId = useMutation({
-    mutationFn: generateUploadIdReq,
-  });
+  const setServerFileId = useBoundStore((s) => s.setServerFileId);
 
   const upload = async (
     file: UploadFile,
     folderName: string,
-    selectedProviders: StorageProvider[]
+    selectedProviders: StorageProvider[],
   ) => {
-    const uploadId = await generateUploadIdReq();
-    updateFileUploadId(file.id, uploadId);
     try {
-      await uploadFileToServerReq({
+      // Paso 1: Subir archivo al servidor (guardado temporal)
+      const result = await uploadsService.uploadFile({
         file: file.file,
         folderName,
-        uploadId,
         selectedProviders,
         onProgress: (percent) => {
-          console.log("percent", percent);
-          let status = UploadStatus.uploading;
-
-          if (percent >= 100) {
-            status = UploadStatus.completed;
-          }
-
-          updateFileProgress(uploadId, percent, status);
+          console.log("Server upload progress:", percent);
+          // Usar temporaryId para mostrar progreso de subida HTTP
+          updateFileProgress(file.temporaryId, percent, UploadStatus.uploading);
         },
       });
-    } catch (error) {
-      console.error(error);
-      updateFileProgress(uploadId, 0, UploadStatus.error);
-    }
 
-    // markCompleted(id);
+      // Paso 2: Guardar el fileId real del servidor
+      console.log("File uploaded to server, fileId:", result.fileId);
+      setServerFileId(file.temporaryId, result.fileId);
+
+      // Ahora los WebSocket events usarán result.fileId para actualizar progreso de providers
+      
+    } catch (error) {
+      console.error("Upload failed:", error);
+      updateFileProgress(file.temporaryId, 0, UploadStatus.error);
+    }
   };
 
   return { upload };
